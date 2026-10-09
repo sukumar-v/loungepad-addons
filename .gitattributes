@@ -1,0 +1,5 @@
+# Served raw and hashed in index.json: the bytes must be the same on every checkout.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
