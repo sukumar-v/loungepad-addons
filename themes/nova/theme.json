@@ -1,0 +1,60 @@
+{
+  "name": "Nova",
+  "author": "Loungepad",
+  "version": "1.0.0",
+  "description": "A console home screen: your recent games as square icons over full-screen art, and under them the game hub -- Play, achievement, stats and mods cards, activities, media and the game info -- with a game library of Installed and Your Collection beside it.",
+  "icon": "icon.svg",
+  "minLauncher": "1.9.0",
+  "tokens": {
+    "--bg": "#06080F",
+    "--bg-deep": "#010205",
+    "--surface": "#171B26",
+    "--surface-hi": "#232937",
+    "--card": "#10131C",
+    "--ink": "#FFFFFF",
+    "--edge": "#FFFFFF"
+  },
+  "settings": [
+    {
+      "id": "columns",
+      "name": "Library tiles across",
+      "hint": "How many squares fit in a row of the game library. Fewer are larger",
+      "type": "select",
+      "options": [
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "labels": {
+        "5": "5 · larger",
+        "6": "6",
+        "7": "7",
+        "8": "8 · smaller"
+      },
+      "default": "6",
+      "token": "--nv-cols"
+    },
+    {
+      "id": "titles",
+      "name": "Names on every square",
+      "hint": "Every square in the game library shows its name. Off, only the one under the highlight does",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "id": "home-activities",
+      "name": "Activities on the home screen",
+      "hint": "The highlighted game's achievements, earned and not, under its cards",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "id": "home-media",
+      "name": "Media on the home screen",
+      "hint": "The highlighted game's trailers and screenshots, under its activities",
+      "type": "toggle",
+      "default": true
+    }
+  ]
+}

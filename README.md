@@ -50,3 +50,4 @@ a file → a folder** installs your working copy, **Reload from the folder** pic
 | | | |
 |---|---|---|
 | **HowLongToBeat** | extension | how long each game takes to beat, from howlongtobeat.com, on its page |
+| **Nova** | theme | a console home screen: square icons over full-screen art, each game's hub (Play, achievements, stats, mods, activities, media, game info) under them, and a game library with Installed and Your Collection |

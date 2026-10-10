@@ -1,0 +1,261 @@
+<!-- Nova -- a console home screen.
+
+     THE HOME. "Games" and, at the right, search, settings and the clock. The recents run along
+     the top as square icons, the one under the highlight drawn large with its name beside it;
+     the last icon opens the game library. Under the row is the game's hub, one page of it:
+         the title (or logo), a line about it, Play and the options button
+         cards: Achievements, Stats, Mods
+         Activities: its achievements, earned (with the date) and not
+         Media: trailers and screenshots
+         Game info: the blurb, the score and rating, playtime, what the extensions know
+     Scrolled into the hub, the row gives way to the game's name in the top bar.
+
+     THE GAME LIBRARY is the library's second page: its title, Installed and Your Collection as
+     tabs, a rail of search, sort and filter, and add a game, and the games as squares. A on a
+     square opens that game's hub; LB and RB change tab; B goes home.
+
+     A GAME'S HUB opened from the library is the same hub on a page of its own, under its name.
+
+     There is no button legend. No script: a theme cannot run any. The {{fields}} and data-act
+     names are in docs/THEMES.md, "A layout of your own". -->
+
+<template data-template="screen-library">
+  <div class="nv">
+    <div class="nv-chrome">
+      <span class="nv-section">Games</span>
+      <!-- The hub's game, in the top bar once the home is scrolled down into it. -->
+      <div class="nv-hubhead" data-render="nova-head" data-model="game" data-hold></div>
+      <div class="nv-topslot" data-slot="topbar"></div>
+      <div class="nv-topacts">
+        <span class="nv-icon-btn" data-act="search" data-focus-key="top:search" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20.5 20.5"/></svg></span>
+        <span class="nv-icon-btn" data-act="settings" data-focus-key="top:settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+      </div>
+    </div>
+
+    <!-- The library's one scroller. Its two pages share it; the screen's data-library-page says
+         which is showing, and theme.css hides the other. -->
+    <div class="nv-view">
+      <div class="nv-home">
+        <!-- Down from any icon goes to Play, as on the console, not to the card under the icon. -->
+        <div class="nv-row" data-slot="continue" data-nav-down="act:play"></div>
+        <div class="nv-playing" data-slot="playing"></div>
+        <div class="nv-hub" data-render="nova-hub" data-model="game"></div>
+      </div>
+
+      <div class="nv-games">
+        <div class="nv-lhead" data-render="nova-lhead" data-model="library"></div>
+        <div class="nv-lbody">
+          <div class="nv-rail">
+            <span class="nv-icon-btn" data-act="search" data-focus-key="rail:search" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20.5 20.5"/></svg></span>
+            <span class="nv-icon-btn" data-act="filter" data-focus-key="rail:filter" title="Sort and filter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M4 12h7M4 18h4"/><path d="M17 5v14M20.5 15.5 17 19l-3.5-3.5"/></svg></span>
+            <span class="nv-icon-btn" data-act="add-game" data-focus-key="rail:add" title="Add a game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="13" height="12" rx="2"/><path d="M19.5 3v6M16.5 6h6"/></svg></span>
+          </div>
+          <div class="nv-lmain">
+            <div class="nv-lbar" data-render="nova-lbar" data-model="library"></div>
+            <!-- Left from the first column goes to the rail, not round to the end of the row. -->
+            <div class="nv-library" data-slot="grid" data-nav-left="rail:search rail:filter rail:add"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- A game's hub from the game library: its name at the top, the hub under it. -->
+<template data-template="screen-detail">
+  <div class="nv nv-page">
+    <div class="nv-pagehead" data-render="nova-head" data-model="game"></div>
+    <div class="nv-pview">
+      <div class="nv-hub" data-render="nova-hub" data-model="game"></div>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================ the row -- -->
+
+<template data-template="continue-tile">
+  <div class="nv-tile">
+    <div class="nv-art">
+      <span class="nv-initials">{{initials}}</span>
+      <div class="nv-fb" data-unless="square">
+        <div class="nv-fb-logoart" data-if="logo"><div class="nv-img nv-fb-hero" data-bg="{{banner}}"></div><div class="nv-fb-logo" data-bg="{{logo}}"></div></div>
+        <div class="nv-fb-coverart" data-unless="logo"><div class="nv-img nv-fb-bed" data-bg="{{cover}}"></div><div class="nv-img nv-fb-cover" data-bg="{{cover}}"></div></div>
+      </div>
+      <div class="nv-img" data-if="square" data-bg="{{square}}"></div>
+    </div>
+    <div class="nv-name">{{title}}</div>
+  </div>
+</template>
+
+<!-- The last icon in the row: the way into the game library. -->
+<template data-template="continue-end">
+  <div class="nv-tile nv-end" data-act="library" data-tab="installed">
+    <div class="nv-art nv-end-art">
+      <svg viewBox="0 0 48 48" fill="currentColor"><rect x="8" y="8" width="13" height="13" rx="3"/><rect x="27" y="8" width="13" height="13" rx="3"/><rect x="8" y="27" width="13" height="13" rx="3"/><rect x="27" y="27" width="13" height="13" rx="3"/></svg>
+    </div>
+    <div class="nv-name">Game library</div>
+  </div>
+</template>
+
+<!-- The game's name in a top bar: its icon, its store, its title. -->
+<template data-template="nova-head">
+  <div class="nv-head">
+    <div class="nv-head-icon nv-art"><span class="nv-initials">{{initials}}</span><div class="nv-fb" data-unless="square"><div class="nv-fb-logoart" data-if="logo"><div class="nv-img nv-fb-hero" data-bg="{{banner}}"></div><div class="nv-fb-logo" data-bg="{{logo}}"></div></div><div class="nv-fb-coverart" data-unless="logo"><div class="nv-img nv-fb-bed" data-bg="{{cover}}"></div><div class="nv-img nv-fb-cover" data-bg="{{cover}}"></div></div></div><div class="nv-img" data-if="square" data-bg="{{square}}"></div></div>
+    <span class="nv-head-chip">{{platform}}</span>
+    <span class="nv-head-title">{{title}}</span>
+  </div>
+</template>
+
+<!-- ======================================================== the library -- -->
+
+<!-- A on a square opens the game's hub, as on the console; Y is its menu. -->
+<template data-template="game-tile">
+  <div class="nv-tile" data-act="details">
+    <div class="nv-art">
+      <span class="nv-initials">{{initials}}</span>
+      <div class="nv-fb" data-unless="square">
+        <div class="nv-fb-logoart" data-if="logo"><div class="nv-img nv-fb-hero" data-bg="{{banner}}"></div><div class="nv-fb-logo" data-bg="{{logo}}"></div></div>
+        <div class="nv-fb-coverart" data-unless="logo"><div class="nv-img nv-fb-bed" data-bg="{{cover}}"></div><div class="nv-img nv-fb-cover" data-bg="{{cover}}"></div></div>
+      </div>
+      <div class="nv-img" data-if="square" data-bg="{{square}}"></div>
+      <span class="nv-star" data-if="favorite">★</span>
+      <span class="nv-off" data-unless="installed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg></span>
+      <div class="nv-cap">
+        <span class="nv-cap-name">{{title}}</span>
+        <span class="nv-cap-tag" data-if="installed">Installed</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template data-template="nova-lhead">
+  <div class="nv-lhead-in">
+    <div class="nv-lhead-top">
+      <span class="nv-lhead-icon"><svg viewBox="0 0 48 48" fill="currentColor"><rect x="8" y="8" width="13" height="13" rx="3"/><rect x="27" y="8" width="13" height="13" rx="3"/><rect x="8" y="27" width="13" height="13" rx="3"/><rect x="27" y="27" width="13" height="13" rx="3"/></svg></span>
+      <span class="nv-lhead-title" data-unless="searching">Game Library</span>
+      <span class="nv-lhead-title" data-if="searching">Search results</span>
+    </div>
+    <div class="nv-ltabs" data-unless="searching">
+      <span class="nv-ltab" data-act="library" data-tab="installed" data-on="{{tabs.0.active}}">Installed</span>
+      <span class="nv-ltab" data-act="library" data-tab="collection" data-on="{{tabs.1.active}}">Your Collection</span>
+    </div>
+  </div>
+</template>
+
+<template data-template="nova-lbar">
+  <div class="nv-lbar-in">
+    <span class="nv-lcount"><span data-if="searching">“{{search}}”</span><span data-unless="searching"><span data-if="tabLabel">{{tabLabel}}</span><span data-unless="tabLabel">All</span></span>: {{shown}}<span class="nv-lfilt" data-if="filtered">Filtered</span></span>
+    <span class="nv-lsort">Sort by: {{sortLabel}}</span>
+  </div>
+</template>
+
+<!-- ============================================================ the hub --
+     One template for the home and for a game's page. -->
+
+<template data-template="nova-hub">
+  <!-- Up from the hub's top goes back to this game's own icon in the row. -->
+  <div class="nv-hubin" data-nav-up="cont:{{id}}">
+    <section class="nv-hero">
+      <div class="nv-logo" data-if="logo" data-bg="{{logo}}" title="{{title}}"></div>
+      <h1 class="nv-title" data-unless="logo">{{title}}</h1>
+      <p class="nv-tagline" data-if="description">{{description}}</p>
+      <div class="nv-actions">
+        <span class="nv-play" data-act="play">{{playLabel}}</span>
+        <span class="nv-round" data-act="options" title="Options"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2.1"/><circle cx="12" cy="12" r="2.1"/><circle cx="19" cy="12" r="2.1"/></svg></span>
+        <span class="nv-live" data-if="running">Running</span>
+      </div>
+    </section>
+
+    <!-- Achievements, Stats and Mods: frosted cards with an icon row, a title and a line. -->
+    <section class="nv-cards nv-feats">
+      <div class="nv-card nv-feat" data-if="ach.canHave" data-act="achievements" data-focus-key="feat:ach">
+        <div class="nv-feat-top">
+          <span class="nv-feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a1 1 0 0 0-1 1v.5A3.5 3.5 0 0 0 7 11M17 6h2.5a1 1 0 0 1 1 1v.5A3.5 3.5 0 0 1 17 11M12 14v3M8.5 20h7M10 17h4v3h-4z"/></svg></span>
+          <span class="nv-feat-chips"><i data-each="ach.recent" data-limit="4" data-bg="{{icon}}"></i></span>
+          <span class="nv-feat-count" data-if="ach.has">{{ach.percent}}%</span>
+        </div>
+        <div class="nv-feat-title">Achievements</div>
+        <div class="nv-feat-sub" data-if="ach.unlocked">{{ach.unlocked}} of {{ach.total}} earned</div>
+        <div class="nv-feat-sub" data-unless="ach.unlocked"><span data-if="ach.has">You haven't earned any achievements yet.</span><span data-unless="ach.has">None on record yet.</span></div>
+        <div class="nv-feat-bar" data-if="ach.has"><i style="width: {{ach.percent}}%"></i></div>
+      </div>
+
+      <div class="nv-card nv-feat" data-act="stats" data-focus-key="feat:stats">
+        <div class="nv-feat-top"><span class="nv-feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20h16"/><path d="M6.5 16.5v-5M11 16.5V6.5M15.5 16.5v-8M20 16.5v-3"/></svg></span></div>
+        <div class="nv-feat-title">Stats</div>
+        <div class="nv-feat-sub" data-if="played">{{playtime}} played · last played {{lastPlayed}}</div>
+        <div class="nv-feat-sub" data-unless="played">Not played yet. Sessions show here once you have.</div>
+        <svg class="nv-feat-art" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M4 20h16"/><path d="M6.5 16.5v-5M11 16.5V6.5M15.5 16.5v-8M20 16.5v-3"/></svg>
+      </div>
+
+      <div class="nv-feat-wrap" data-if="installed">
+        <div class="nv-card nv-feat" data-unless="emulated" data-act="mods" data-focus-key="feat:mods">
+          <div class="nv-feat-top"><span class="nv-feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19.44 7.85c-.05.32.06.65.29.88l1.57 1.57c.94.94.94 2.47 0 3.41l-1.61 1.61a.98.98 0 0 1-.84.28c-.47-.07-.8-.48-.97-.93a2.5 2.5 0 1 0-3.21 3.21c.45.17.86.5.93.97a.98.98 0 0 1-.28.84l-1.61 1.61a2.4 2.4 0 0 1-3.41 0l-1.57-1.57a1.03 1.03 0 0 0-.88-.29c-.49.07-.84.5-1.02.97a2.5 2.5 0 1 1-3.24-3.24c.46-.18.89-.53.97-1.02a1.03 1.03 0 0 0-.29-.88l-1.57-1.57a2.4 2.4 0 0 1 0-3.41L4.23 8.77c.24-.24.58-.35.92-.3.52.08.88.53 1.07 1.01a2.5 2.5 0 1 0 3.26-3.26c-.48-.2-.93-.56-1.01-1.07-.05-.34.06-.68.3-.92l1.53-1.53a2.4 2.4 0 0 1 3.41 0l1.57 1.57c.23.23.56.34.88.29.49-.07.84-.5 1.02-.97a2.5 2.5 0 1 1 3.24 3.24c-.46.18-.89.53-.97 1.02z"/></svg></span></div>
+          <div class="nv-feat-title">Mods</div>
+          <div class="nv-feat-sub">Browse, install and manage mods with Vortex.</div>
+          <svg class="nv-feat-art" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round"><path d="M19.44 7.85c-.05.32.06.65.29.88l1.57 1.57c.94.94.94 2.47 0 3.41l-1.61 1.61a.98.98 0 0 1-.84.28c-.47-.07-.8-.48-.97-.93a2.5 2.5 0 1 0-3.21 3.21c.45.17.86.5.93.97a.98.98 0 0 1-.28.84l-1.61 1.61a2.4 2.4 0 0 1-3.41 0l-1.57-1.57a1.03 1.03 0 0 0-.88-.29c-.49.07-.84.5-1.02.97a2.5 2.5 0 1 1-3.24-3.24c.46-.18.89-.53.97-1.02a1.03 1.03 0 0 0-.29-.88l-1.57-1.57a2.4 2.4 0 0 1 0-3.41L4.23 8.77c.24-.24.58-.35.92-.3.52.08.88.53 1.07 1.01a2.5 2.5 0 1 0 3.26-3.26c-.48-.2-.93-.56-1.01-1.07-.05-.34.06-.68.3-.92l1.53-1.53a2.4 2.4 0 0 1 3.41 0l1.57 1.57c.23.23.56.34.88.29.49-.07.84-.5 1.02-.97a2.5 2.5 0 1 1 3.24 3.24c-.46.18-.89.53-.97 1.02z"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Activities: the achievements themselves, earned first and dated, then the ones to get. -->
+    <section class="nv-sec nv-sec-activities" data-if="ach.list">
+      <h2 class="nv-sec-title">Activities</h2>
+      <div class="nv-cards nv-acts">
+        <div class="nv-card nv-act" data-each="ach.list" data-act="achievements" data-id="{{id}}" data-focus-key="actv:{{@index}}" data-done="{{unlocked}}">
+          <div class="nv-act-glow" data-bg="{{icon}}"></div>
+          <div class="nv-act-icon" data-bg="{{icon}}"></div>
+          <span class="nv-act-badge" data-unless="unlocked"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10V7.6a5 5 0 0 1 10 0V10h.8A1.7 1.7 0 0 1 19.5 11.7v7.6A1.7 1.7 0 0 1 17.8 21H6.2a1.7 1.7 0 0 1-1.7-1.7v-7.6A1.7 1.7 0 0 1 6.2 10zm2.3 0h5.4V7.6a2.7 2.7 0 0 0-5.4 0z"/></svg></span>
+          <span class="nv-act-badge done" data-if="unlocked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <div class="nv-act-body">
+            <div class="nv-act-kicker" data-if="rarity">{{rarity}} · {{percent}}</div>
+            <div class="nv-act-name">{{name}}</div>
+            <div class="nv-act-sub" data-if="unlocked">Unlocked {{when}}</div>
+            <div class="nv-act-sub" data-unless="unlocked">{{description}}</div>
+          </div>
+        </div>
+        <div class="nv-card nv-act nv-act-all" data-act="achievements" data-focus-key="actv:all">
+          <div class="nv-act-body"><div class="nv-act-name">All achievements</div><div class="nv-act-sub">{{ach.unlocked}} of {{ach.total}} earned</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="nv-sec nv-sec-media" data-if="hasMedia">
+      <h2 class="nv-sec-title">Media</h2>
+      <div class="nv-cards nv-media">
+        <div class="nv-card nv-shot" data-each="media" data-limit="24" data-act="media" data-index="{{index}}" data-bg="{{thumb}}">
+          <span class="nv-shot-play" data-if="isVideo"><svg viewBox="0 0 12 12"><path d="M3 1.8v8.4l7-4.2z" fill="currentColor"/></svg></span>
+          <span class="nv-shot-name" data-if="isVideo">{{name}}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game info: what a game's page used to be, as the end of the hub. Its buttons come last,
+         so reaching them scrolls the whole section into view. -->
+    <section class="nv-sec nv-sec-info">
+      <h2 class="nv-sec-title">Game info</h2>
+      <div class="nv-info">
+        <div class="nv-info-main">
+          <div class="nv-facts"><span data-each="facts">{{text}}</span></div>
+          <p class="nv-desc" data-if="description">{{description}}</p>
+          <div class="nv-extline" data-each="extLines"><span class="nv-extsrc">{{name}}</span><span class="nv-extfact" data-each="facts"><b>{{text}}</b> {{label}}</span></div>
+          <div class="nv-descriptors" data-if="descriptors"><span data-each="descriptors">{{text}}</span></div>
+        </div>
+        <div class="nv-info-side">
+          <div class="nv-ratings">
+            <div class="nv-score" data-if="score" data-band="{{scoreBand}}"><b>{{score}}</b><span>Metacritic</span></div>
+            <img class="nv-age" data-if="age" src="{{age.image}}" alt="{{age.label}}">
+          </div>
+          <dl class="nv-stats">
+            <div data-each="stats"><dt>{{label}}</dt><dd>{{value}}</dd></div>
+          </dl>
+        </div>
+      </div>
+      <div class="nv-more">
+        <span class="nv-btn" data-act="favorite"><span data-unless="favorite">Add to favorites</span><span data-if="favorite">Remove from favorites</span></span>
+        <span class="nv-btn" data-act="collect">Add to collection</span>
+        <span class="nv-btn" data-act="manage">Manage</span>
+      </div>
+    </section>
+  </div>
+</template>

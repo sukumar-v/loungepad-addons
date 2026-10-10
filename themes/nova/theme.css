@@ -1,0 +1,694 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+/* ============================================================================
+   Nova -- a console home screen
+   ============================================================================
+
+   theme.html says what is on each screen. The look is a console's: the game's key art filling
+   the screen, white text and a white Play pill over it, frosted cards, a white ring for the
+   highlight, menus as a sheet from the right, and no button legend.
+
+   GEOMETRY, on the 1920x1080 stage (no legend, so the view is everything under the top bar):
+
+     top bar 96 + view 984                                                  = 1080
+     home:  row 244 + hero 480 + cards 204 + peek 56                        =  984
+     hub page:  head 112 + hero 708 + cards 204 + peek 56                   = 1080
+
+   The peek is the Activities heading showing under the cards, which is how the console says
+   there is more below.
+
+   No script; every duration is multiplied by --motion, the app's animation setting.
+   ============================================================================ */
+
+body { font-family: Inter, "Segoe UI", system-ui, sans-serif; }
+/* The whole game is on the home screen, so its menu needs no "View game". */
+:root { --menu-view-game: none; }
+.lib-search input { font-family: inherit; }
+
+.nv {
+  --gutter: 96px;
+  --view-h: 984px;
+  --peek: 56px;
+  --feats-h: 204px;
+  --row-small: 116px;
+  --row-big: 200px;
+  --row-gap: 20px;
+  --row-h: calc(14px + var(--row-big) + 30px);
+  --cols: var(--nv-cols, 6);
+  --gap: 16px;
+  --rail-w: 64px;
+  --tile-w: calc((1920px - 2 * var(--gutter) - var(--rail-w) - 28px - (var(--cols) - 1) * var(--gap)) / var(--cols));
+  --tile-h: var(--tile-w);
+  --ring: #FFFFFF;
+  --frost: color-mix(in srgb, #7489C4 24%, transparent);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  position: relative;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+
+/* applyScreen drops the layout in as a child of .screen, a flex column. */
+.theme-layout { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* The one highlight, for every button and card: a white ring and a soft glow. */
+.nv { --focus-ring: 0 0 0 4px var(--ring), 0 0 34px 2px color-mix(in srgb, var(--ring) 26%, transparent); }
+
+/* ------------------------------------------------------------ the backdrop --
+   The art is the screen: sharp at its own aspect from the top, dissolving into a blurred copy
+   of itself that fills the rest. A game's hub page is drawn over the same backdrop, so the
+   picture and the film carry on from the home without a cut. */
+
+body:has(#screen-library:is(.active, .closing, .under)) #backdrop { --trailers: auto; }
+body:has(#screen-library:is(.active, .closing, .under)) #backdrop::before {
+  content: "";
+  position: absolute; inset: -8%;
+  background-image: var(--bd-image, none);
+  background-size: cover; background-position: center;
+  filter: blur(60px) saturate(1.4) brightness(0.7);
+  opacity: 0; transition: opacity calc(320ms * var(--motion, 1)) linear;
+}
+body:has(#screen-library:is(.active, .closing, .under)) #backdrop.has-art::before { opacity: 1; }
+
+body:has(#screen-library:is(.active, .closing, .under)) .bd {
+  top: 0; left: 0; right: 0; bottom: auto;
+  height: auto; aspect-ratio: var(--art-aspect, 3.1);
+  max-width: 100%; max-height: 100%;
+  filter: none; background-position: top center;
+  -webkit-mask-image: linear-gradient(180deg, #000 0, #000 45%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 0, #000 45%, transparent 100%);
+  transition: opacity calc(300ms * var(--motion, 1)) linear,
+              filter calc(380ms * var(--motion, 1)) var(--ease),
+              transform calc(380ms * var(--motion, 1)) var(--ease);
+}
+body:has(#screen-library:is(.active, .closing, .under)) .bd.visible { opacity: 1; }
+
+body:has(#screen-library:is(.active, .closing, .under)) #backdrop :is(video, .trailer-yt) {
+  transition: opacity calc(600ms * var(--motion, 1)) linear,
+              filter calc(380ms * var(--motion, 1)) var(--ease);
+}
+body:has(#screen-library:is(.active, .closing, .under)) #backdrop :is(video, .trailer-yt).playing { opacity: 1; filter: none; }
+
+/* Down in the hub the art steps back behind the cards. */
+body:is(:has(#screen-library.active .nv-view.scrolled), [data-view="detail"]:has(.nv-pview.scrolled)) .bd {
+  filter: blur(26px) saturate(1.1) brightness(0.5);
+  transform: scale(1.06);
+}
+body:is(:has(#screen-library.active .nv-view.scrolled), [data-view="detail"]:has(.nv-pview.scrolled)) #backdrop :is(video, .trailer-yt).playing {
+  filter: brightness(0.42);
+}
+
+/* Shade where there is something to read: under the top bar and the row, behind the title and
+   the buttons, and along the bottom where the cards sit. */
+body:has(#screen-library:is(.active, .closing, .under)) #backdrop::after {
+  content: "";
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 66%, transparent) 0, color-mix(in srgb, var(--bg) 22%, transparent) 26%, transparent 38%),
+    linear-gradient(0deg, color-mix(in srgb, var(--bg) 88%, transparent) 0, color-mix(in srgb, var(--bg) 40%, transparent) 22%, transparent 36%),
+    radial-gradient(ellipse 54% 44% at 16% 56%, color-mix(in srgb, var(--bg) 64%, transparent) 0, color-mix(in srgb, var(--bg) 24%, transparent) 60%, transparent 100%);
+}
+body[data-view="detail"]:has(#screen-library.under) #backdrop::after {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 52%, transparent) 0, transparent 20%),
+    linear-gradient(0deg, color-mix(in srgb, var(--bg) 90%, transparent) 0, color-mix(in srgb, var(--bg) 42%, transparent) 26%, transparent 40%),
+    radial-gradient(ellipse 54% 44% at 16% 64%, color-mix(in srgb, var(--bg) 66%, transparent) 0, color-mix(in srgb, var(--bg) 24%, transparent) 60%, transparent 100%);
+}
+
+/* The game library (and a search's results) is a list on its own dark blue, and nothing behind it
+   is seen -- so nothing is drawn there: no hero decoded and blurred on every step, no trailer
+   started under an opaque page. Not on a game's hub page, which is opened from here and is art. */
+body:not([data-view="detail"]):has(#screen-library:is([data-library-page="games"], :has(#libSearch:is(.active, .has-query)))) #backdrop {
+  display: none; --trailers: none;
+}
+
+/* A wash once the hub is scrolled, and the game library's own dark blue: a list, not any one
+   game. Faded, never swapped. */
+.nv::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bg) 58%, transparent),
+    color-mix(in srgb, var(--bg) 86%, transparent) 40%);
+  opacity: 0;
+  transition: opacity calc(380ms * var(--motion, 1)) var(--ease);
+}
+.nv:has(.nv-view.scrolled)::before, .nv:has(.nv-pview.scrolled)::before { opacity: 1; }
+#screen-library[data-library-page="games"] .nv::before,
+#screen-library:has(#libSearch:is(.active, .has-query)) .nv::before {
+  opacity: 1;
+  background:
+    radial-gradient(ellipse 40% 50% at 92% 4%, color-mix(in srgb, #3A4C86 55%, transparent) 0, transparent 70%),
+    linear-gradient(180deg, #0B1022 0, #05070E 70%);
+}
+
+/* ------------------------------------------------------------------ top bar --
+   "Games" at the left; at the right the search field (while it is in use), the search and
+   settings buttons, the controller and the clock. The app's top bar is unboxed into this row
+   (display: contents), so its pieces and the theme's buttons can share one order. */
+
+.nv-chrome {
+  position: relative; flex: 0 0 96px;
+  display: flex; align-items: center; gap: 20px;
+  padding: 0 var(--gutter);
+}
+.nv-section { order: 0; margin-right: auto; font-size: 30px; font-weight: 600; letter-spacing: -0.01em; transition: opacity calc(200ms * var(--motion, 1)) linear; }
+.nv-topslot, .nv .topbar { display: contents; }
+.nv .topbar-left { display: none; }
+.nv #libSearch { order: 1; }
+.nv-topacts { order: 2; display: flex; gap: 16px; }
+.nv .topbar-right { order: 3; gap: 26px; font-family: inherit; letter-spacing: 0.01em; font-size: 21px; color: color-mix(in srgb, var(--ink) 86%, transparent); }
+.nv #titleCount, .nv .vsep { display: none; }
+.nv .clock { font-size: 23px; font-weight: 500; color: var(--ink); }
+.nv .batt-pct { font-size: 17px; }
+
+/* A round button: the top bar's and the game library's rail. */
+.nv-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 58px; height: 58px; border-radius: 50%; cursor: pointer;
+  color: var(--ink); background: color-mix(in srgb, var(--ink) 13%, transparent);
+  backdrop-filter: blur(18px);
+  transition: background calc(160ms * var(--motion, 1)) linear, box-shadow calc(160ms * var(--motion, 1)) linear;
+}
+.nv-icon-btn svg { width: 26px; height: 26px; }
+.nv-icon-btn.focused { background: color-mix(in srgb, var(--ink) 26%, transparent); box-shadow: var(--focus-ring); }
+
+/* The search field appears only while it is being typed in or a search stands. */
+.nv #libSearch:not(.active):not(.has-query) { width: 0; padding: 0; border: 0; opacity: 0; overflow: hidden; pointer-events: none; }
+.nv #libSearch {
+  width: 620px; height: 58px; border-radius: 29px;
+  background: color-mix(in srgb, var(--ink) 13%, transparent);
+  color: var(--ink); backdrop-filter: blur(18px);
+}
+.nv #libSearch input { font-size: 22px; }
+.nv #libSearch.active { border-color: var(--ring); box-shadow: 0 0 30px 2px color-mix(in srgb, var(--ring) 22%, transparent); background: color-mix(in srgb, var(--bg) 72%, transparent); }
+
+/* The hub's game in the bar once the home is scrolled into it, where "Games" was. */
+.nv-hubhead {
+  position: absolute; left: var(--gutter); top: 0; height: 96px;
+  display: flex; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity calc(220ms * var(--motion, 1)) linear;
+}
+#screen-library[data-library-page="home"] .nv:has(.nv-view.scrolled) .nv-hubhead { opacity: 1; }
+#screen-library[data-library-page="home"] .nv:has(.nv-view.scrolled) .nv-section { opacity: 0; }
+/* The game library has a heading of its own; the bar keeps only the clock. */
+#screen-library[data-library-page="games"] :is(.nv-section, .nv-topacts, .nv-hubhead) { display: none; }
+#screen-library[data-library-page="games"] .nv .topbar-right { margin-left: auto; }
+
+.nv-head { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.nv-head-icon { position: relative; flex: none; width: 58px; height: 58px; border-radius: 12px; overflow: hidden; background: var(--surface); box-shadow: none; }
+.nv-head-icon .nv-initials { font-size: 18px; }
+.nv-head-chip {
+  flex: none; padding: 3px 9px; border-radius: 6px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #0B0D12; background: color-mix(in srgb, #FFFFFF 90%, transparent);
+}
+.nv-head-title { font-size: 25px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 14px color-mix(in srgb, var(--bg-deep) 80%, transparent); }
+
+/* ------------------------------------------------------- the two pages --
+   The home and the game library share the scroller; the screen says which is showing. A
+   search shows its results on the library's grid from either page. */
+
+.nv-view {
+  flex: 1; min-height: 0; position: relative;
+  overflow-x: hidden; overflow-y: auto;
+  scrollbar-width: none;
+}
+.nv-view::-webkit-scrollbar { display: none; }
+.nv-view.scrolled {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 26px);
+          mask-image: linear-gradient(180deg, transparent 0, #000 26px);
+}
+
+#screen-library[data-library-page="home"]:not(:has(#libSearch:is(.active, .has-query))) .nv-games,
+#screen-library[data-library-page="games"] .nv-home,
+#screen-library:has(#libSearch:is(.active, .has-query)) .nv-home { display: none; }
+
+.nv-home { position: relative; }
+
+/* ----------------------------------------------------------------- the row --
+   Square icons along the top. The one under the highlight grows to --row-big and its name sits
+   beside it, under the small ones: those are top-aligned, so the space below them next to the
+   big icon is free. Ten recents and the library's icon always fit, so the row never slides. */
+
+.nv-row {
+  height: var(--row-h); padding: 14px var(--gutter) 0;
+  transition: opacity calc(260ms * var(--motion, 1)) linear;
+}
+.nv-view.scrolled .nv-row { opacity: 0; }
+.nv-row .lib-section { gap: 0; }
+.nv-row .section-head { display: none; }
+.nv-row .continue-row { --continue-max: 10; padding: 0; margin: 0; }
+.nv-row .continue-track { gap: var(--row-gap); align-items: flex-start; }
+.nv-row .cont-item {
+  width: auto; height: auto; background: none; border: none; box-shadow: none;
+  border-radius: 0; overflow: visible;
+}
+/* Walking up onto the row goes back to the top of the page. */
+.nv-row .nv-tile { position: relative; scroll-margin-top: var(--view-h); }
+.nv-row .cont-item.focused { transform: none; }
+.nv-row .nv-tile.focused { z-index: 4; }
+.nv-row .nv-art {
+  width: var(--row-small); height: var(--row-small); border-radius: 18px;
+  transition: width calc(200ms * var(--motion, 1)) var(--ease),
+              height calc(200ms * var(--motion, 1)) var(--ease),
+              border-radius calc(200ms * var(--motion, 1)) var(--ease),
+              box-shadow calc(200ms * var(--motion, 1)) var(--ease);
+}
+.nv-row .nv-tile.focused .nv-art { width: var(--row-big); height: var(--row-big); border-radius: 26px; }
+.nv-row .nv-name {
+  position: absolute; left: calc(100% + 28px); bottom: 4px;
+  max-width: 560px;
+  font-size: 28px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 2px 18px color-mix(in srgb, var(--bg-deep) 80%, transparent);
+  opacity: 0; transition: opacity calc(160ms * var(--motion, 1)) linear;
+  pointer-events: none;
+}
+.nv-row .nv-tile.focused .nv-name { opacity: 1; transition-delay: calc(80ms * var(--motion, 1)); }
+.nv-row .nv-initials { font-size: 34px; }
+.nv-row .nv-tile.focused .nv-initials { font-size: 56px; }
+
+.nv-end-art { color: var(--ink); background: linear-gradient(145deg, #2A3A66, #121A33) !important; }
+.nv-end-art svg { width: 44%; height: 44%; opacity: 0.92; }
+
+/* The running game, as a chip at the right of the hub. */
+.nv-playing { position: absolute; right: var(--gutter); top: calc(var(--row-h) + 40px); z-index: 2; }
+.nv-playing .lib-section { gap: 0; }
+.nv-playing .section-head, .nv-playing .playing-hint { display: none; }
+.nv-playing .playing-card {
+  height: auto; gap: 20px; padding: 12px 26px 12px 12px; border-radius: 18px; width: max-content;
+  background: color-mix(in srgb, var(--bg-deep) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--edge) 10%, transparent);
+  backdrop-filter: blur(22px) saturate(1.3);
+}
+.nv-playing .playing-art { width: 140px; height: 80px; border-radius: 10px; }
+.nv-playing .playing-name { font-size: 22px; }
+.nv-playing .playing-meta { font-family: inherit; font-size: 14px; color: color-mix(in srgb, var(--ink) 72%, transparent); }
+.nv-playing .playing-card.focused { transform: none; box-shadow: var(--focus-ring); }
+
+/* On the library's own icon there is no game: the hub says where A goes instead. */
+.nv-home .nv-hub[data-empty]::before {
+  content: "Game library"; display: block;
+  padding: 44px var(--gutter) 0;
+  font-size: 60px; font-weight: 500; letter-spacing: -0.02em;
+}
+.nv-home .nv-hub[data-empty]::after {
+  content: "Everything you have, installed or not. Press A to open it.";
+  display: block; padding: 16px var(--gutter) 0;
+  font-size: 22px; color: color-mix(in srgb, var(--ink) 78%, transparent);
+}
+
+/* ------------------------------------------------------------------ the hub --
+   The hero (title, a line, Play and options), the cards, then the sections. The same template
+   on the home and on a hub page; only where the hero sits differs. */
+
+.nv-hubin { display: flex; flex-direction: column; padding-bottom: 64px; }
+
+.nv-hero {
+  height: calc(var(--view-h) - var(--row-h) - var(--feats-h) - var(--peek));
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+  gap: 14px; padding: 30px var(--gutter) 0;
+}
+.nv-logo {
+  width: 600px; height: 170px; flex: none;
+  background-size: contain; background-position: left bottom; background-repeat: no-repeat;
+  filter: drop-shadow(0 6px 24px color-mix(in srgb, var(--bg-deep) 60%, transparent));
+}
+.nv-title {
+  margin: 0; max-width: 1100px;
+  font-size: 60px; font-weight: 500; line-height: 1.1; letter-spacing: -0.02em;
+  text-shadow: 0 4px 26px color-mix(in srgb, var(--bg) 80%, transparent);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.nv-tagline {
+  margin: 4px 0 0; max-width: 780px;
+  font-size: 22px; line-height: 1.45; color: color-mix(in srgb, var(--ink) 88%, transparent);
+  text-shadow: 0 2px 16px color-mix(in srgb, var(--bg) 80%, transparent);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.nv-actions { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
+.nv-play {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 340px; height: 72px; padding: 0 48px; border-radius: 36px; cursor: pointer;
+  background: #FFFFFF; color: #2D3142;
+  font-size: 25px; font-weight: 500;
+  transition: box-shadow calc(160ms * var(--motion, 1)) linear;
+}
+.nv-round {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 72px; height: 72px; border-radius: 50%; cursor: pointer;
+  background: color-mix(in srgb, #9FB0E0 30%, transparent);
+  backdrop-filter: blur(22px) saturate(1.3); color: var(--ink);
+}
+.nv-round svg { width: 30px; height: 30px; }
+.nv-play.focused, .nv-round.focused {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bg-deep) 80%, transparent), 0 0 0 7px var(--ring), 0 0 40px 6px color-mix(in srgb, var(--ring) 34%, transparent);
+}
+.nv-live {
+  padding: 6px 14px; border-radius: 16px; font-size: 16px; font-weight: 600;
+  color: #7FE3A8; background: color-mix(in srgb, #7FE3A8 16%, transparent);
+}
+
+/* A row of cards: a scroller sideways, padded so the ring and the lift are not clipped, and
+   pulled back so the cards line up with the gutter. */
+.nv-cards {
+  /* Positioned: the app measures a highlighted card against its row with offsetLeft, which is
+     only the row's when the row is the card's offsetParent. Without it the reveal measured
+     against the page, and walking left ran the highlight off the screen. */
+  position: relative;
+  display: flex; gap: 24px;
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+  padding: 18px calc(var(--gutter) + 0px) 30px; margin: 0;
+}
+.nv-cards::-webkit-scrollbar { display: none; }
+.nv-card {
+  position: relative; flex: none; cursor: pointer; overflow: hidden;
+  border-radius: 14px;
+  transition: transform calc(180ms * var(--motion, 1)) var(--ease), box-shadow calc(180ms * var(--motion, 1)) var(--ease);
+}
+.nv-card.focused { transform: scale(1.03); z-index: 2; box-shadow: var(--focus-ring), 0 24px 50px -18px color-mix(in srgb, var(--bg-deep) 95%, transparent); }
+
+/* Achievements, Stats, Mods: frosted, an icon row on top, a title and a line. */
+.nv-feats { height: var(--feats-h); align-items: flex-start; }
+.nv-feat-wrap { display: contents; }
+.nv-feat {
+  width: 560px; height: 156px; padding: 20px 26px;
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;
+  background: var(--frost);
+  backdrop-filter: blur(26px) saturate(1.3);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--edge) 12%, transparent);
+}
+.nv-feat.focused { box-shadow: var(--focus-ring), inset 0 0 0 1px color-mix(in srgb, var(--edge) 12%, transparent); }
+.nv-feat-top { display: flex; align-items: center; gap: 14px; margin-bottom: auto; }
+.nv-feat-icon { display: grid; place-items: center; width: 32px; height: 32px; color: var(--ink); }
+.nv-feat-icon svg { width: 30px; height: 30px; }
+.nv-feat-chips { display: flex; gap: 8px; }
+.nv-feat-chips i { width: 32px; height: 32px; border-radius: 7px; background: color-mix(in srgb, var(--ink) 14%, transparent) center / cover no-repeat; }
+.nv-feat-count { margin-left: auto; font-size: 20px; font-weight: 600; }
+.nv-feat-title { font-size: 24px; font-weight: 600; }
+.nv-feat-sub { font-size: 19px; color: color-mix(in srgb, var(--ink) 82%, transparent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px; }
+.nv-feat-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
+.nv-feat-bar i { display: block; height: 100%; background: var(--ink); }
+.nv-feat-art { position: absolute; right: 24px; top: 50%; width: 96px; height: 96px; transform: translateY(-50%); color: var(--ink); opacity: 0.16; }
+
+/* A section: a heading, then its row. */
+.nv-sec { margin-top: 6px; }
+.nv-sec-title { margin: 0; padding: 0 var(--gutter); font-size: 25px; font-weight: 500; }
+html[data-theme-home-activities="false"] .nv-home .nv-sec-activities,
+html[data-theme-home-media="false"] .nv-home .nv-sec-media { display: none; }
+
+/* Activities: one card an achievement, the picture large with its glow behind it, a lock or a
+   tick, then its rarity, its name and either when it was earned or what to do. */
+.nv-act {
+  width: 320px; height: 420px;
+  background: linear-gradient(180deg, #23283A 0, #10131C 100%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--edge) 8%, transparent);
+}
+.nv-act.focused { box-shadow: var(--focus-ring); }
+.nv-act-glow {
+  position: absolute; left: 50%; top: 40px; width: 240px; height: 240px; transform: translateX(-30%);
+  background-size: cover; background-position: center;
+  filter: blur(46px) saturate(1.6); opacity: 0.55;
+}
+.nv-act-icon {
+  position: absolute; left: 50%; top: 52px; width: 148px; height: 148px; transform: translateX(-24%);
+  border-radius: 16px; background: color-mix(in srgb, var(--ink) 10%, transparent) center / cover no-repeat;
+  box-shadow: 0 16px 34px -14px color-mix(in srgb, var(--bg-deep) 95%, transparent);
+}
+.nv-act[data-done="false"] .nv-act-icon { filter: brightness(0.75); }
+.nv-act-badge {
+  position: absolute; left: 30px; top: 100px; width: 48px; height: 48px;
+  display: grid; place-items: center; color: var(--ink);
+  filter: drop-shadow(0 2px 10px color-mix(in srgb, var(--bg-deep) 90%, transparent));
+}
+.nv-act-badge svg { width: 42px; height: 42px; }
+.nv-act-badge.done { border-radius: 50%; background: color-mix(in srgb, #7FE3A8 22%, transparent); color: #9CF0BE; }
+.nv-act-badge.done svg { width: 28px; height: 28px; }
+.nv-act-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 24px 24px; display: flex; flex-direction: column; gap: 6px; }
+.nv-act-kicker { font-size: 17px; color: color-mix(in srgb, var(--ink) 80%, transparent); }
+.nv-act-name { font-size: 23px; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nv-act-sub { font-size: 17px; color: color-mix(in srgb, var(--ink) 82%, transparent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nv-act[data-done="true"] .nv-act-sub { color: #9CF0BE; }
+.nv-act-all { display: flex; align-items: center; justify-content: center; background: var(--frost); backdrop-filter: blur(26px); }
+.nv-act-all .nv-act-body { position: static; align-items: center; text-align: center; padding: 0 24px; }
+
+/* Media: 16:9 cards; a film is marked, and named. */
+.nv-shot { width: 400px; height: 225px; background-size: cover; background-position: center; background-color: var(--surface); }
+.nv-shot-play {
+  position: absolute; left: 16px; bottom: 16px; width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center; color: var(--ink);
+  background: color-mix(in srgb, var(--bg-deep) 70%, transparent); backdrop-filter: blur(10px);
+}
+.nv-shot-play svg { width: 16px; height: 16px; margin-left: 2px; }
+.nv-shot-name {
+  position: absolute; left: 70px; right: 16px; bottom: 26px;
+  font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 2px 10px color-mix(in srgb, var(--bg-deep) 90%, transparent);
+}
+
+/* Game info: the facts and the blurb and the extensions on the left, the marks and the numbers
+   on the right, the buttons last. */
+.nv-info { display: flex; gap: 72px; align-items: flex-start; padding: 22px var(--gutter) 10px; }
+.nv-info-main { flex: 1; min-width: 0; max-width: 960px; display: flex; flex-direction: column; gap: 18px; }
+.nv-facts { display: flex; flex-wrap: wrap; font-size: 19px; font-weight: 500; color: color-mix(in srgb, var(--ink) 86%, transparent); }
+.nv-facts > span + span::before { content: "·"; margin: 0 12px; color: color-mix(in srgb, var(--ink) 40%, transparent); }
+.nv-desc {
+  margin: 0; font-size: 20px; line-height: 1.65; color: color-mix(in srgb, var(--ink) 80%, transparent);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 7; overflow: hidden;
+}
+.nv-extline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 22px; font-size: 18px; color: color-mix(in srgb, var(--ink) 72%, transparent); }
+.nv-extsrc { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 52%, transparent); }
+.nv-extfact b { color: var(--ink); font-weight: 600; }
+.nv-descriptors { display: flex; flex-wrap: wrap; gap: 8px; }
+.nv-descriptors span {
+  height: 30px; padding: 0 12px; border-radius: 15px; display: inline-flex; align-items: center;
+  font-size: 14px; color: color-mix(in srgb, var(--ink) 70%, transparent);
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+.nv-info-side { flex: none; width: 560px; display: flex; flex-direction: column; gap: 26px; }
+.nv-ratings { display: flex; align-items: flex-end; gap: 20px; }
+.nv-ratings:empty { display: none; }
+.nv-score { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.nv-score b {
+  width: 72px; height: 72px; border-radius: 8px; display: grid; place-items: center;
+  font-size: 36px; font-weight: 700; color: #262626; background: #00CE7A;
+}
+.nv-score[data-band="mixed"] b { background: #FFBD3F; }
+.nv-score[data-band="poor"] b { background: #FF6B73; }
+.nv-score span { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 66%, transparent); }
+.nv-age { height: 94px; width: auto; }
+.nv-stats { margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 36px; }
+.nv-stats dt { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 54%, transparent); }
+.nv-stats dd { margin: 4px 0 0; font-size: 22px; font-weight: 600; }
+.nv-more { display: flex; gap: 14px; padding: 26px var(--gutter) 8px; }
+.nv-btn {
+  display: inline-flex; align-items: center; height: 60px; padding: 0 30px; border-radius: 30px; cursor: pointer;
+  font-size: 20px; font-weight: 500; color: var(--ink);
+  background: color-mix(in srgb, #9FB0E0 26%, transparent);
+  backdrop-filter: blur(22px) saturate(1.3);
+}
+.nv-btn.focused { box-shadow: var(--focus-ring); background: color-mix(in srgb, #9FB0E0 40%, transparent); }
+
+/* --------------------------------------------------------- the game library --
+   An icon and "Game Library", two text tabs, then a rail of round buttons beside the grid:
+   search, sort and filter, add a game. The count and the sort sit over the grid. */
+
+.nv-games { padding: 0 var(--gutter); }
+.nv-lhead-in { display: flex; flex-direction: column; gap: 18px; padding-top: 4px; }
+.nv-lhead-top { display: flex; align-items: center; gap: 22px; }
+.nv-lhead-icon {
+  display: grid; place-items: center; width: 64px; height: 64px; border-radius: 14px;
+  background: color-mix(in srgb, var(--ink) 11%, transparent); color: var(--ink);
+}
+.nv-lhead-icon svg { width: 34px; height: 34px; }
+.nv-lhead-title { font-size: 30px; font-weight: 500; }
+.nv-ltabs { display: flex; gap: 22px; margin-left: 64px; }
+.nv-ltab {
+  display: inline-flex; align-items: center; height: 52px; padding: 0 22px; border-radius: 26px; cursor: pointer;
+  font-size: 25px; font-weight: 400; color: color-mix(in srgb, var(--ink) 72%, transparent);
+  transition: box-shadow calc(160ms * var(--motion, 1)) linear;
+}
+.nv-ltab[data-on="true"] { font-weight: 600; color: var(--ink); }
+.nv-ltab.focused { box-shadow: var(--focus-ring); background: color-mix(in srgb, var(--ink) 12%, transparent); }
+
+.nv-lbody { display: flex; gap: 28px; align-items: flex-start; padding-top: 16px; }
+.nv-rail {
+  position: sticky; top: 24px; flex: none; width: var(--rail-w);
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  padding-top: 66px;
+}
+.nv-lmain { flex: 1; min-width: 0; }
+.nv-lbar-in { display: flex; align-items: center; justify-content: space-between; height: 44px; }
+.nv-lcount { font-size: 21px; font-weight: 600; }
+.nv-lfilt { margin-left: 14px; padding: 3px 10px; border-radius: 12px; font-size: 14px; font-weight: 600; background: color-mix(in srgb, var(--ink) 14%, transparent); }
+.nv-lsort { font-size: 19px; color: color-mix(in srgb, var(--ink) 84%, transparent); }
+
+.nv-library .lib-section { gap: 0; }
+.nv-library .section-head { display: none; }
+.nv-library .grid-scroll {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--tile-w));
+  gap: var(--gap);
+  align-content: start;
+  padding: 16px 16px 48px; margin: 0 -16px;
+  flex: 0 0 auto; overflow: visible;
+  -webkit-mask-image: none; mask-image: none;
+}
+.nv-library .grid-row { display: contents; }
+.nv-library .empty-note { grid-column: 1 / -1; }
+.nv-library .zone-dim .grid-item, .nv-library .zone-dim .grid-item.uninstalled { opacity: 1; }
+.nv-library .grid-item {
+  width: auto; height: auto; flex: 0 0 auto;
+  background: none; border: none; border-radius: 0; overflow: visible; box-shadow: none;
+  transform-origin: center center;
+}
+.nv-library .grid-item.focused { transform: none; box-shadow: none; z-index: 4; }
+.nv-library .nv-tile { transition: transform calc(200ms * var(--motion, 1)) var(--ease); }
+.nv-library .nv-tile.focused { transform: scale(1.05); }
+.nv-library .nv-art { width: var(--tile-w); height: var(--tile-h); border-radius: 8px; }
+.nv-library .nv-tile.focused .nv-art { box-shadow: 0 0 0 3px var(--ring), 0 0 34px 2px color-mix(in srgb, var(--ring) 24%, transparent), 0 24px 50px -18px color-mix(in srgb, var(--bg-deep) 95%, transparent); }
+
+/* The name over the bottom of the square, on the one under the highlight (every one with the
+   option on), and "Installed" on the installed ones away from the Installed tab. */
+.nv-cap {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 14px 12px;
+  display: flex; flex-direction: column; gap: 2px;
+  background: linear-gradient(0deg, color-mix(in srgb, var(--bg-deep) 88%, transparent), transparent);
+  opacity: 0; transition: opacity calc(160ms * var(--motion, 1)) linear;
+}
+.nv-cap-name { font-size: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nv-cap-tag { font-size: 14px; font-weight: 500; color: color-mix(in srgb, var(--ink) 82%, transparent); }
+.nv-library .nv-tile.focused .nv-cap, html[data-theme-titles="true"] .nv-library .nv-cap { opacity: 1; }
+#screen-library[data-library-tab="installed"] .nv-cap-tag { display: none; }
+
+.nv-library .grid-item.add-tile {
+  width: var(--tile-w); height: var(--tile-h); border-radius: 8px;
+  border: 2px dashed color-mix(in srgb, var(--ink) 22%, transparent);
+  background: color-mix(in srgb, var(--edge) 5%, transparent);
+}
+.nv-library .grid-item.add-tile.focused { transform: scale(1.05); border: 3px solid var(--ring); }
+
+/* ------------------------------------------------------------------- tiles -- */
+
+.nv-art {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface);
+  box-shadow: 0 10px 28px -14px color-mix(in srgb, var(--bg-deep) 92%, transparent);
+  transition: box-shadow calc(200ms * var(--motion, 1)) var(--ease);
+}
+/* The icon. A square from SteamGridDB when the game has one -- asked for by {{square}}, and drawn
+   whole. Until then, or for a game with none: the game's logo on its own tile art, blurred, so the
+   name is always whole; or for a game with no logo, the whole cover fitted on a blurred copy of
+   itself. A portrait cover is never cut to a square.
+
+   The tile art (616x353), not the hero. Steam's hero is 3840x1240 for most installed games, and a
+   screen of icons drawn from heroes was ~360 MB of decoded picture for 259px squares, re-decoded as
+   the highlight moved: the Installed tab froze while the collection, whose heroes are the small
+   1x, scrolled smoothly. The tile art is a seventeenth of that. */
+.nv-img { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; }
+.nv-fb, .nv-fb-logoart, .nv-fb-coverart { position: absolute; inset: 0; }
+.nv-fb-hero { filter: blur(12px) brightness(0.6) saturate(1.25); transform: scale(1.3); }
+.nv-fb-logo {
+  position: absolute; left: 10%; right: 10%; top: 18%; bottom: 18%;
+  background-size: contain; background-position: center; background-repeat: no-repeat;
+  filter: drop-shadow(0 4px 14px color-mix(in srgb, var(--bg-deep) 70%, transparent));
+}
+.nv-fb-bed { filter: blur(18px) brightness(0.6) saturate(1.2); transform: scale(1.2); }
+.nv-fb-cover { background-size: contain; }
+.nv-initials { font-size: 40px; font-weight: 700; letter-spacing: 0.02em; color: color-mix(in srgb, var(--ink) 26%, transparent); }
+.nv-tile.uninstalled .nv-img { filter: grayscale(0.4) brightness(0.68); }
+.nv-row .nv-tile.focused .nv-art { box-shadow: var(--focus-ring), 0 24px 50px -18px color-mix(in srgb, var(--bg-deep) 95%, transparent); }
+.nv-star { position: absolute; top: 8px; right: 10px; font-size: 18px; color: var(--ink); text-shadow: 0 2px 8px color-mix(in srgb, var(--bg-deep) 90%, transparent); z-index: 1; }
+.nv-off {
+  position: absolute; right: 10px; top: 10px; width: 34px; height: 34px; border-radius: 50%; z-index: 1;
+  display: flex; align-items: center; justify-content: center; color: var(--ink);
+  background: color-mix(in srgb, var(--bg-deep) 70%, transparent); backdrop-filter: blur(10px);
+}
+.nv-off svg { width: 18px; height: 18px; }
+.nv-tile:has(.nv-off) .nv-star { right: 52px; }
+
+/* No legend: the app's own bar under each screen is not slotted, and this hides the one the
+   game's hub page would otherwise keep. */
+.nv .legend { display: none; }
+
+/* ============================================================ a game's hub page --
+   The hub on a page of its own, under the game's name: the console's game hub. Drawn over the
+   library's backdrop, so the film carries on from the home. */
+
+#screen-detail { --trailer-surface: backdrop; background: transparent; }
+#screen-detail .detail-art, #screen-detail .detail-shade-x, #screen-detail .detail-shade-y { display: none; }
+.nv-page { height: 100%; }
+.nv-pagehead { flex: 0 0 112px; display: flex; align-items: center; padding: 0 var(--gutter); }
+.nv-pview {
+  flex: 1; min-height: 0; position: relative;
+  overflow-x: hidden; overflow-y: auto; scrollbar-width: none;
+}
+.nv-pview::-webkit-scrollbar { display: none; }
+.nv-pview.scrolled {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 30px);
+          mask-image: linear-gradient(180deg, transparent 0, #000 30px);
+}
+.nv-page .nv-hero {
+  height: calc(1080px - 112px - var(--feats-h) - var(--peek));
+  justify-content: flex-end; padding-bottom: 20px;
+}
+/* No entrance animation on the hub: it is a live region, drawn again on a state push, and an
+   animation there replays every time -- the page blinking under the highlight. */
+
+/* ================================================================== menus --
+   The game's options, sort and filter, collections and Manage come in as a sheet from the
+   right, frosted dark blue, rows with a white ring under the highlight, and no hints. */
+
+.overlay:is(#overlay-filter, #overlay-gamemenu, #overlay-collect, #overlay-manage, #overlay-choice) {
+  justify-content: flex-end; align-items: stretch;
+  background: color-mix(in srgb, #000 42%, transparent);
+}
+.overlay:is(#overlay-filter, #overlay-gamemenu, #overlay-collect, #overlay-manage, #overlay-choice) > .quick-card {
+  width: 660px; max-height: none; height: 100%;
+  border-radius: 0; border: none; border-left: 1px solid color-mix(in srgb, var(--edge) 10%, transparent);
+  background: color-mix(in srgb, #161B2E 94%, transparent);
+  backdrop-filter: blur(34px) saturate(1.3);
+  padding: 72px 44px 40px; gap: 22px;
+  box-shadow: -30px 0 80px -20px color-mix(in srgb, #000 70%, transparent);
+}
+.overlay:is(#overlay-filter, #overlay-gamemenu, #overlay-collect, #overlay-manage, #overlay-choice).active > .quick-card {
+  animation: nvSheetIn calc(260ms * var(--motion, 1)) var(--ease) backwards;
+}
+.overlay:is(#overlay-filter, #overlay-gamemenu, #overlay-collect, #overlay-manage, #overlay-choice).closing > .quick-card {
+  animation: nvSheetOut calc(180ms * var(--motion, 1)) ease-in forwards;
+}
+@keyframes nvSheetIn { from { transform: translateX(80px); opacity: 0; } }
+@keyframes nvSheetOut { to { transform: translateX(60px); opacity: 0; } }
+
+.quick-title { font-family: inherit; font-size: 15px; font-weight: 600; letter-spacing: 0.12em; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+.overlay:is(#overlay-filter, #overlay-gamemenu, #overlay-collect, #overlay-manage, #overlay-choice) .ov-scroll { max-height: none; flex: 1; min-height: 0; }
+.ov-cat { font-family: inherit; font-size: 14px; font-weight: 600; letter-spacing: 0.12em; color: color-mix(in srgb, var(--ink) 48%, transparent); padding: 22px 22px 6px; }
+.ov-row { min-height: 66px; padding: 0 22px; border-radius: 12px; font-size: 21px; }
+.ov-row.focused {
+  transform: none; background: color-mix(in srgb, var(--ink) 13%, transparent);
+  box-shadow: 0 0 0 3px var(--ring), 0 0 30px 2px color-mix(in srgb, var(--ring) 20%, transparent);
+}
+.ov-row.focused .ov-icon, .ov-check, .ov-row.focused .arrow, .ov-row .ov-action { color: var(--ink); }
+.ov-check.off { color: color-mix(in srgb, var(--ink) 25%, transparent); }
+.ov-foot { display: none; }
+.menu-card { width: 660px; }
+
+/* A question: a frosted card, the answers as pills. */
+.dialog {
+  background: color-mix(in srgb, #161B2E 96%, transparent);
+  border: 1px solid color-mix(in srgb, var(--edge) 10%, transparent);
+  border-radius: 22px; backdrop-filter: blur(34px);
+}
+.dialog-btn { border-radius: 30px; }
+.dialog-yes { background: #FFFFFF; color: #2D3142; }
+.dialog-yes:hover { background: #FFFFFF; }
+.dialog.danger .dialog-yes { background: color-mix(in srgb, var(--danger) 24%, transparent); color: var(--ink); }
+
+/* -------------------------------------------------------- everything else --
+   Not relaid out: rounder corners, so nothing else reads as another launcher's. */
+
+.coll-card, .set-row, .quick-card, .guide-card, .ach-card, .act-card, .session-card { border-radius: 20px; }
+.overlay:is(#overlay-filter, #overlay-gamemenu, #overlay-collect, #overlay-manage, #overlay-choice) > .quick-card { border-radius: 0; }
+.stats-box { border-radius: 30px; }

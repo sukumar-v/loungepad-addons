@@ -1,7 +1,40 @@
 {
   "schema": 1,
-  "generated": "2026-10-09T20:45:35.307Z",
+  "generated": "2026-10-10T09:01:19.226Z",
   "addons": [
+    {
+      "id": "nova",
+      "kind": "theme",
+      "name": "Nova",
+      "version": "1.0.0",
+      "summary": "A console home screen: your recent games as square icons over full-screen art, and under them the game hub -- Play, achievement, stats and mods cards, activities, media and the game info -- with a gam",
+      "author": "Loungepad",
+      "minLauncher": "1.9.0",
+      "icon": "icon.svg",
+      "base": "https://raw.githubusercontent.com/sukumar-v/loungepad-addons/main/themes/nova/",
+      "files": [
+        {
+          "path": "icon.svg",
+          "sha256": "608fb4e5324ae1c37a308a3f1218ff8cbdaeef7c20694e06ebcaece6e73dee19",
+          "size": 1024
+        },
+        {
+          "path": "theme.css",
+          "sha256": "28db06087f55a840a8e457ac5ce825c1f686e77db8bae3bb953db22869d3a4cc",
+          "size": 39448
+        },
+        {
+          "path": "theme.html",
+          "sha256": "832af74974e0d0db030c2f200899ce33e67be3d4e0993edc4f4e93a7752014b1",
+          "size": 18792
+        },
+        {
+          "path": "theme.json",
+          "sha256": "13100bc6cbd0e5f77f985d76e4f080f29039eaf5420697ff2ef3f832031a383c",
+          "size": 1709
+        }
+      ]
+    },
     {
       "id": "howlongtobeat",
       "kind": "extension",
