@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated": "2026-10-10T09:01:36.162Z",
+  "generated": "2026-10-14T00:46:48.034Z",
   "addons": [
     {
       "id": "nova",
@@ -66,6 +66,37 @@
           "path": "manifest.json",
           "sha256": "0c611abdc1c5b1f4654150c97c7eb08fd07f88f25c559616b12d0df5ef6f8bd5",
           "size": 1179
+        }
+      ]
+    },
+    {
+      "id": "zen-sofa",
+      "kind": "actions",
+      "name": "Zen Browser from the sofa",
+      "version": "1.0.0",
+      "summary": "Firefox's shortcuts and Zen's own: compact mode, workspaces and split view. New tab, back and tabs on the pad.",
+      "author": "Loungepad",
+      "homepage": "https://github.com/sukumar-v/loungepad-addons/tree/main/actions/zen-sofa",
+      "minLauncher": "1.10.0",
+      "app": {
+        "name": "Zen Browser",
+        "exes": [
+          "zen"
+        ],
+        "product": "Zen"
+      },
+      "counts": {
+        "tabs": 4,
+        "actions": 32,
+        "buttons": 4
+      },
+      "fingerprint": "b3e65b6b44e659e183fbb282ef48297848cf23704ff0e551794cadab98f833da",
+      "base": "https://raw.githubusercontent.com/sukumar-v/loungepad-addons/main/actions/zen-sofa/",
+      "files": [
+        {
+          "path": "layout.json",
+          "sha256": "98c03078b0d2bc782ed4490ce545bc59c29570c45911884497a0c605b106dc4b",
+          "size": 4434
         }
       ]
     }

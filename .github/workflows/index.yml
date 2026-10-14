@@ -1,8 +1,11 @@
-# Every pull request: the manifests are valid and index.json matches the folders.
+# Every pull request: the manifests are valid, index.json matches the folders, and every action
+# layout is the right shape and not another layout again (tools/check-actions.mjs).
 # Every push to main: rebuild index.json and commit it if it changed, so a merge is a release.
 name: index
 on:
   pull_request:
+    # labeled/unlabeled: a maintainer's not-a-duplicate label runs the checks again with it.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
     branches: [main]
 jobs:
@@ -11,9 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }   # check-actions compares what the pull request changed with its base
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: node tools/build-index.mjs --check
+      - run: node tools/test-check-actions.mjs
+      - name: Action layouts
+        # Only people who can label the pull request can set this; its author cannot.
+        env:
+          ALLOW_OVERLAP: ${{ contains(github.event.pull_request.labels.*.name, 'not-a-duplicate') }}
+          BASE_REF: ${{ github.base_ref }}
+        run: node tools/check-actions.mjs --base "origin/$BASE_REF"
   publish:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest

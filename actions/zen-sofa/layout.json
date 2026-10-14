@@ -1,0 +1,66 @@
+{
+  "format": "loungepad-actions/1",
+  "app": {
+    "name": "Zen Browser",
+    "exes": ["zen"],
+    "product": "Zen"
+  },
+  "title": "Zen Browser from the sofa",
+  "summary": "Firefox's shortcuts and Zen's own: compact mode, workspaces and split view. New tab, back and tabs on the pad.",
+  "author": "Loungepad",
+  "version": "1.0.0",
+  "tabs": [
+    {
+      "name": "Browse",
+      "actions": [
+        { "name": "New tab", "keys": "Ctrl+T", "desc": "Opens a new tab, ready for an address or a search.", "button": "Y" },
+        { "name": "Close tab", "keys": "Ctrl+W", "desc": "Closes the tab you are on." },
+        { "name": "Back", "keys": "Alt+Left", "desc": "Goes back to the page before this one.", "button": "X" },
+        { "name": "Forward", "keys": "Alt+Right", "desc": "Goes forward again, after going back." },
+        { "name": "Reload", "keys": "Ctrl+R", "desc": "Loads the page again, to see anything new on it." },
+        { "name": "Address bar", "keys": "Ctrl+L", "desc": "Selects the address bar, to type an address or a search." },
+        { "name": "Find in page", "keys": "Ctrl+F", "desc": "Looks for a word or phrase on this page." },
+        { "name": "Full screen", "keys": "F11", "desc": "Fills the whole screen with the page. Press it again to go back." }
+      ]
+    },
+    {
+      "name": "Tabs & spaces",
+      "actions": [
+        { "name": "Next tab", "keys": "Ctrl+Tab", "desc": "Switches to the next tab in the sidebar.", "button": "RB" },
+        { "name": "Previous tab", "keys": "Ctrl+Shift+Tab", "desc": "Switches to the tab before it in the sidebar.", "button": "LB" },
+        { "name": "Reopen closed tab", "keys": "Ctrl+Shift+T", "desc": "Brings back the tab you closed last." },
+        { "name": "Next workspace", "keys": "Ctrl+Alt+E", "desc": "Moves to the next workspace, with its own tabs." },
+        { "name": "Previous workspace", "keys": "Ctrl+Alt+Q", "desc": "Moves to the workspace before this one." },
+        { "name": "Copy page address", "keys": "Ctrl+Shift+C", "desc": "Copies the address of the page you are on, ready to paste." },
+        { "name": "New window", "keys": "Ctrl+N", "desc": "Opens another Zen window." },
+        { "name": "Private window", "keys": "Ctrl+Shift+P", "desc": "Opens a private window, which forgets its history and sign-ins once closed." }
+      ]
+    },
+    {
+      "name": "View",
+      "actions": [
+        { "name": "Compact mode", "keys": "Ctrl+Alt+C", "desc": "Hides the toolbars and the sidebar, for more of the page. Again to bring them back." },
+        { "name": "Sidebar width", "keys": "Alt+B", "desc": "Switches the tab sidebar between wide and narrow." },
+        { "name": "Split side by side", "keys": "Ctrl+Alt+V", "desc": "Shows the selected tabs side by side. Select two or more in the sidebar first." },
+        { "name": "Split top and bottom", "keys": "Ctrl+Alt+H", "desc": "Shows the selected tabs one above the other. Select them in the sidebar first." },
+        { "name": "Unsplit", "keys": "Ctrl+Alt+U", "desc": "Puts tabs shown together back into tabs of their own." },
+        { "name": "Zoom in", "keys": "Ctrl+=", "desc": "Makes the page bigger, text and pictures alike." },
+        { "name": "Zoom out", "keys": "Ctrl+-", "desc": "Makes the page smaller, to fit more on the screen." },
+        { "name": "Reset zoom", "keys": "Ctrl+0", "desc": "Puts the page back to its normal size." }
+      ]
+    },
+    {
+      "name": "Page",
+      "actions": [
+        { "name": "Mute tab", "keys": "Ctrl+M", "desc": "Mutes this tab's sound, or brings it back." },
+        { "name": "Picture in picture", "keys": "Ctrl+Shift+]", "desc": "Pops the video on this page out into a small window that stays on top." },
+        { "name": "Reader view", "keys": "Ctrl+Alt+R", "desc": "Shows the article on this page as plain, easy-to-read text." },
+        { "name": "Bookmark this page", "keys": "Ctrl+D", "desc": "Saves the page as a bookmark, to find it again later." },
+        { "name": "History", "keys": "Ctrl+H", "desc": "Shows the pages you have visited, in the sidebar." },
+        { "name": "Downloads", "keys": "Ctrl+Shift+Y", "desc": "Shows the files you have downloaded." },
+        { "name": "Screenshot", "keys": "Ctrl+Shift+S", "desc": "Takes a picture of the page, or a part of it you choose." },
+        { "name": "Print", "keys": "Ctrl+P", "desc": "Prints the page, or saves it as a PDF." }
+      ]
+    }
+  ]
+}

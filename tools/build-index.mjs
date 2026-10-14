@@ -9,12 +9,15 @@
  *
  * Every theme under themes/ and every extension under extensions/ becomes one entry: what its
  * manifest says, plus every file in the folder with its size and SHA-256. The launcher downloads
- * exactly these files and checks each hash before installing (docs/ADDONS.md in Loungepad).
+ * exactly these files and checks each hash before installing (docs/ADDONS.md in Loungepad). Every
+ * action layout under actions/ becomes one too (kind "actions"), with the programs it is for and
+ * its fingerprint; check-actions.mjs is what says a layout is right.
  */
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync, writeFileSync, existsSync } from "node:fs";
 import { join, relative, extname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ACTIONS_MIN_LAUNCHER, fingerprint, loadLauncherData } from "./actions-lib.mjs";
 
 const root = join(fileURLToPath(import.meta.url), "..", "..");
 const args = process.argv.slice(2);
@@ -88,6 +91,40 @@ function entry(kind, id) {
   };
 }
 
+/*
+ * An action layout (actions/<id>/layout.json): what the launcher's list under an app's wheel shows
+ * before anything is downloaded -- the programs it is for, its size, its fingerprint -- and the one
+ * file, with its hash. Whether the layout itself is right is check-actions.mjs's to say.
+ */
+function actionsEntry(id, named) {
+  const dir = join(root, "actions", id);
+  if (!ID.test(id)) { problems.push(`actions/${id}: the folder name is not a valid id (letters, digits, hyphens, starting with a letter)`); return null; }
+  const file = join(dir, "layout.json");
+  if (!existsSync(file)) { problems.push(`actions/${id}: no layout.json`); return null; }
+  let l;
+  try { l = JSON.parse(readFileSync(file, "utf8").replace(/^﻿/, "")); }
+  catch (e) { problems.push(`actions/${id}: layout.json is not valid JSON: ${e.message}`); return null; }
+  const version = String(l.version || "");
+  if (!VERSION.test(version)) problems.push(`actions/${id}: version "${version}" is not major.minor.patch`);
+  const tabs = Array.isArray(l.tabs) ? l.tabs : [];
+  const actions = tabs.flatMap(t => (t && Array.isArray(t.actions) ? t.actions : []));
+  const app = l.app || {};
+  return {
+    id, kind: "actions",
+    name: String(l.title || id),
+    version,
+    summary: l.summary || undefined,
+    author: l.author || undefined,
+    homepage: `https://github.com/sukumar-v/loungepad-addons/tree/main/actions/${id}`,
+    minLauncher: l.minLauncher || ACTIONS_MIN_LAUNCHER,
+    app: { name: String(app.name || ""), exes: Array.isArray(app.exes) ? app.exes.map(String) : [], product: app.product || undefined },
+    counts: { tabs: tabs.length, actions: actions.length, buttons: actions.filter(a => a && a.button).length },
+    fingerprint: fingerprint(l, named),
+    base: `${BASE}actions/${id}/`,
+    files: files(dir),
+  };
+}
+
 const addons = [];
 for (const kind of ["theme", "extension"]) {
   const dir = join(root, kind + "s");
@@ -95,6 +132,15 @@ for (const kind of ["theme", "extension"]) {
   for (const id of readdirSync(dir).sort()) {
     if (!statSync(join(dir, id)).isDirectory() || id.startsWith(".")) continue;
     const e = entry(kind, id);
+    if (e) addons.push(e);
+  }
+}
+const actionsDir = join(root, "actions");
+if (existsSync(actionsDir)) {
+  const { named } = loadLauncherData();
+  for (const id of readdirSync(actionsDir).sort()) {
+    if (!statSync(join(actionsDir, id)).isDirectory() || id.startsWith(".")) continue;
+    const e = actionsEntry(id, named);
     if (e) addons.push(e);
   }
 }
